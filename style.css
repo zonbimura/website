@@ -1,1 +1,21 @@
-1
+/* ページ全体の設定 */
+body {
+    font-family: Arial, sans-serif;  /* 読みやすいフォント */
+    line-height: 1.6;               /* 行間を少し広く */
+    margin: 0;                      /* 余白をリセット */
+    padding: 20px;                  /* 内側の余白 */
+    background-color: #f4f4f4;      /* 背景色（薄いグレー） */
+}
+
+/* 見出しの設定 */
+h1 {
+    color: #333;                    /* 濃いグレーの文字色 */
+    text-align: center;             /* 中央寄せ */
+    margin-bottom: 30px;            /* 下の余白 */
+}
+
+/* 段落の設定 */
+p {
+    color: #666;                    /* 少し薄めの文字色 */
+    font-size: 16px;                /* 文字サイズ */
+}
