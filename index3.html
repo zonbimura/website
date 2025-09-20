@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>青空ボランティア団体 - 地域をつなぐ活動</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Noto Sans JP', sans-serif; }
+        
+        .chat-bubble-user {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 18px 18px 4px 18px;
+        }
+        
+        .chat-bubble-bot {
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border-radius: 18px 18px 18px 4px;
+        }
+        
+        .floating-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .chat-window {
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            display: none;
+            flex-direction: column;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background-color: #374151;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+        
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- ヘッダー -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16 relative">
+                <button id="mobile-menu-btn" class="flex items-center space-x-2">
+                    <div class="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">MENU</span>
+                </button>
+                <div class="absolute left-1/2 transform -translate-x-1/2">
+                    <a href="index.html" class="text-2xl font-bold text-blue-600">🌟 青空ボランティア</a>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- モバイルメニュー -->
+        <div id="mobile-menu" class="mobile-menu fixed top-0 left-0 w-80 h-full bg-white shadow-2xl z-50">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-xl font-bold text-blue-600">🌟 青空ボランティア</h2>
+                    <button id="mobile-menu-close" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <nav class="space-y-4">
+                    <a href="index.html" class="block py-3 px-4 text-blue-600 bg-blue-50 rounded-lg font-semibold">
+                        🏠 ホーム
+                    </a>
+                    <a href="about.html" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                        ℹ️ 団体について
+                    </a>
+                    <a href="events.html" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                        📅 イベント
+                    </a>
+                    <a href="news.html" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                        📢 お知らせ
+                    </a>
+                    <a href="contact.html" class="block py-3 px-4 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
+                        📧 お問い合わせ
+                    </a>
+                </nav>
+                
+                <div class="mt-8 pt-8 border-t border-gray-200">
+                    <div class="text-sm text-gray-600 mb-2">お問い合わせ</div>
+                    <div class="text-sm text-gray-800">📞 03-1234-5678</div>
+                    <div class="text-sm text-gray-800">📧 info@aozora-volunteer.org</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- オーバーレイ -->
+        <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main>
+        <!-- ヒーローセクション -->
+        <section class="gradient-bg text-white py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6">地域をつなぐ、心をつなぐ</h1>
+                <p class="text-xl md:text-2xl mb-8 opacity-90">青空ボランティア団体は、地域社会の発展と住民の絆を深める活動を行っています</p>
+                <div class="space-x-4">
+                    <a href="events.html" class="inline-block bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors">活動に参加する</a>
+                    <a href="about.html" class="inline-block border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-blue-600 transition-colors">詳しく見る</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 活動紹介 -->
+        <section class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">私たちの活動</h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">地域社会のために、様々な分野で活動しています</p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center card-hover bg-blue-50 p-6 rounded-lg">
+                        <div class="text-4xl mb-4">🌱</div>
+                        <h3 class="text-xl font-semibold mb-2">環境保護活動</h3>
+                        <p class="text-gray-600 mb-4">地域の清掃活動や植樹活動を通じて、美しい環境を守ります</p>
+                        <a href="about.html" class="text-blue-600 hover:text-blue-800 font-medium">詳しく見る →</a>
+                    </div>
+                    <div class="text-center card-hover bg-green-50 p-6 rounded-lg">
+                        <div class="text-4xl mb-4">👥</div>
+                        <h3 class="text-xl font-semibold mb-2">地域支援</h3>
+                        <p class="text-gray-600 mb-4">高齢者支援や子育て支援など、地域住民の生活をサポートします</p>
+                        <a href="about.html" class="text-green-600 hover:text-green-800 font-medium">詳しく見る →</a>
+                    </div>
+                    <div class="text-center card-hover bg-purple-50 p-6 rounded-lg">
+                        <div class="text-4xl mb-4">🎉</div>
+                        <h3 class="text-xl font-semibold mb-2">イベント企画</h3>
+                        <p class="text-gray-600 mb-4">地域の絆を深めるイベントや交流会を企画・運営します</p>
+                        <a href="events.html" class="text-purple-600 hover:text-purple-800 font-medium">詳しく見る →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 最新情報 -->
+        <section class="py-16 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">最新情報</h2>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- 最新イベント -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-blue-600">📅 今後のイベント</h3>
+                        <div class="space-y-3">
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <div class="font-medium">新春地域清掃活動</div>
+                                <div class="text-sm text-gray-600">2024年1月20日（土）9:00-12:00</div>
+                            </div>
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <div class="font-medium">高齢者向けスマホ教室</div>
+                                <div class="text-sm text-gray-600">2024年2月3日（土）14:00-16:00</div>
+                            </div>
+                        </div>
+                        <a href="events.html" class="inline-block mt-4 text-blue-600 hover:text-blue-800 font-medium">すべてのイベントを見る →</a>
+                    </div>
+                    
+                    <!-- 最新お知らせ -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-green-600">📢 お知らせ</h3>
+                        <div class="space-y-3">
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <div class="font-medium">新メンバー募集中！</div>
+                                <div class="text-sm text-gray-600">2024年1月15日</div>
+                            </div>
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <div class="font-medium">年末清掃活動の報告</div>
+                                <div class="text-sm text-gray-600">2024年1月10日</div>
+                            </div>
+                        </div>
+                        <a href="news.html" class="inline-block mt-4 text-green-600 hover:text-green-800 font-medium">すべてのお知らせを見る →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA セクション -->
+        <section class="py-16 bg-blue-600 text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">一緒に地域を良くしませんか？</h2>
+                <p class="text-xl mb-8 opacity-90">あなたの参加をお待ちしています</p>
+                <div class="space-x-4">
+                    <a href="contact.html" class="inline-block bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors">お問い合わせ</a>
+                    <a href="events.html" class="inline-block border-2 border-white text-white px-8 py-3 rounded-full font-semibold hover:bg-white hover:text-blue-600 transition-colors">イベントを見る</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">🌟 青空ボランティア</h3>
+                    <p class="text-gray-300">地域をつなぐ、心をつなぐボランティア団体です。</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">ページ</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="index.html" class="hover:text-white transition-colors">ホーム</a></li>
+                        <li><a href="about.html" class="hover:text-white transition-colors">団体について</a></li>
+                        <li><a href="events.html" class="hover:text-white transition-colors">イベント</a></li>
+                        <li><a href="news.html" class="hover:text-white transition-colors">お知らせ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">活動内容</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>環境保護活動</li>
+                        <li>地域支援</li>
+                        <li>イベント企画</li>
+                        <li>教育支援</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">お問い合わせ</h4>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>📧 info@aozora-volunteer.org</li>
+                        <li>📞 03-1234-5678</li>
+                        <li><a href="contact.html" class="hover:text-white transition-colors">お問い合わせフォーム</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 青空ボランティア団体. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- チャットボット -->
+    <div class="floating-chat">
+        <button id="chat-toggle" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full shadow-lg transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+        </button>
+        
+        <div id="chat-window" class="chat-window">
+            <div class="bg-blue-500 text-white p-4 rounded-t-2xl">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-semibold">質問チャットボット</h3>
+                    <button id="chat-close" class="text-white hover:text-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <p class="text-sm opacity-90 mt-1">何でもお気軽にお聞きください！</p>
+            </div>
+            
+            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-gray-50" style="height: 350px;">
+                <div class="chat-bubble-bot text-gray-800 p-3 mb-3 max-w-xs">
+                    こんにちは！青空ボランティア団体の質問チャットボットです。活動内容やイベント参加について、何でもお聞きください！
+                </div>
+            </div>
+            
+            <div class="p-4 border-t">
+                <div class="flex space-x-2">
+                    <input id="chat-input" type="text" placeholder="質問を入力してください..." class="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="chat-send" class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // チャットボット機能
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatWindow = document.getElementById('chat-window');
+        const chatClose = document.getElementById('chat-close');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+        const chatMessages = document.getElementById('chat-messages');
+
+        // チャットボットの回答データベース
+        const chatResponses = {
+            'こんにちは': 'こんにちは！青空ボランティア団体へようこそ。何かご質問はありますか？',
+            'ありがとう': 'どういたしまして！他にも何かお聞きしたいことがあれば、お気軽にどうぞ。',
+            '活動内容': '私たちは環境保護活動、地域支援、イベント企画を中心に活動しています。詳しくは「団体について」のページをご覧ください。',
+            '参加方法': 'イベントへの参加は各イベントの「参加申込」ボタンから、または電話（03-1234-5678）でお申し込みいただけます。',
+            '会費': '年会費は1,000円です。学生の方は500円となっています。',
+            '時間': '活動時間はイベントによって異なりますが、多くは土日の午前中または午後に行っています。',
+            '場所': '主な活動場所は中央公園、コミュニティセンター、児童館などです。',
+            '連絡先': 'メール：info@aozora-volunteer.org、電話：03-1234-5678でお気軽にお問い合わせください。',
+            '年齢': '年齢制限はありません。小学生から高齢者まで、どなたでも参加できます。',
+            'ボランティア': 'ボランティア活動は地域社会への貢献と自己成長の素晴らしい機会です。一緒に活動しませんか？'
+        };
+
+        chatToggle.addEventListener('click', () => {
+            chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        chatClose.addEventListener('click', () => {
+            chatWindow.style.display = 'none';
+        });
+
+        function addMessage(message, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 
+                'chat-bubble-user text-white p-3 mb-3 max-w-xs ml-auto' : 
+                'chat-bubble-bot text-gray-800 p-3 mb-3 max-w-xs';
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function getBotResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            for (const [key, response] of Object.entries(chatResponses)) {
+                if (message.includes(key)) {
+                    return response;
+                }
+            }
+            
+            return '申し訳ございませんが、その質問についてはお電話（03-1234-5678）またはメール（info@aozora-volunteer.org）でお問い合わせください。スタッフが詳しくお答えいたします。';
+        }
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                chatInput.value = '';
+                
+                setTimeout(() => {
+                    const response = getBotResponse(message);
+                    addMessage(response);
+                }, 1000);
+            }
+        }
+
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // モバイルメニュー
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuClose = document.getElementById('mobile-menu-close');
+        const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+
+        function openMobileMenu() {
+            mobileMenu.classList.add('open');
+            mobileMenuOverlay.classList.remove('hidden');
+            mobileMenuBtn.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileMenu() {
+            mobileMenu.classList.remove('open');
+            mobileMenuOverlay.classList.add('hidden');
+            mobileMenuBtn.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        mobileMenuBtn.addEventListener('click', openMobileMenu);
+        mobileMenuClose.addEventListener('click', closeMobileMenu);
+        mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+
+        // メニューリンクをクリックしたときもメニューを閉じる
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', closeMobileMenu);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9823534fc2fdb011',t:'MTc1ODM5MjMwNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
